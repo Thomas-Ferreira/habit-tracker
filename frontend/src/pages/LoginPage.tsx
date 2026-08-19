@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import toast, { Toaster } from "react-hot-toast";
 
 export const LoginPage = () => {
 
@@ -20,6 +21,7 @@ export const LoginPage = () => {
       if (loginType === "Sign In") {
         try {
           await login(email, password)
+          toast.success("login successful")
           navigate('/dashboard')
         } catch (err) {
           setError((err as Error).message)
@@ -28,6 +30,7 @@ export const LoginPage = () => {
         try {
           await signup(email, password)
           navigate('/dashboard')
+          toast.success("sign up successful")
         } catch (err) {
           setError((err as Error).message)
         }

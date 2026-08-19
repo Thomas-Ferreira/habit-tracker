@@ -1,39 +1,39 @@
-import axios, { AxiosError } from "axios";
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export const LoginPage = () => {
 
+  const { login, isLoading, signup } = useAuth();
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
 
   const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
   const [loginType, setLoginType] = useState<"Sign In" | "Sign Up">("Sign In")
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
-    const link = loginType === "Sign In"
-      ? 'http://localhost:5000/api/auth/login'
-      : 'http://localhost:5000/api/auth/signup'
 
-    try {
-      const response = await axios.post(
-        link,
-        { email, password }
-      );
-
-      localStorage.setItem('token', response.data.token);
-      navigate('/habits'); // Redirige après login
-    } catch (err) {
-      const error = err as AxiosError<{ error: string }>;
-      setError(error.response?.data?.error || 'An error occurred');
-    } finally {
-      setLoading(false);
+    if (email && password) {
+      if (loginType === "Sign In") {
+        try {
+          await login(email, password)
+          navigate('/dashboard')
+        } catch (err) {
+          setError((err as Error).message)
+        }
+      } else if (loginType === "Sign Up") {
+        try {
+          await signup(email, password)
+          navigate('/dashboard')
+        } catch (err) {
+          setError((err as Error).message)
+        }
+      }
     }
+
   };
 
   return (
@@ -91,10 +91,10 @@ export const LoginPage = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className="w-full mt-6 bg-emerald-500 hover:bg-emerald-400 disabled:bg-gray-700 disabled:cursor-not-allowed text-slate-950 font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 

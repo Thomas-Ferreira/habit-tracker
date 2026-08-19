@@ -1,7 +1,7 @@
 
 import type { AxiosError } from "axios";
 import axios from "axios";
-import React, { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useEffect, useState, type ReactNode } from "react";
 
 export interface User {
   id: string;
@@ -14,6 +14,7 @@ export interface AuthContextType {
   token: string | null
   user: User | null
   isLoading: boolean
+  error: string | null
 
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
@@ -106,6 +107,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token,
     user,
     isLoading,
+    error,
     login,
     signup,
     logout,

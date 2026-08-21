@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
+import habitRoutes from './routes/habit';
+
 
 dotenv.config()
 
@@ -18,7 +20,8 @@ mongoose.connect(process.env.MONGODB_URI || "")
   .catch(err => console.error('❌ MongoDB error:', err))
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("api/habit", habitRoutes)
 
 // Test route
 app.get("/api/health", (req: Request, res: Response) => {

@@ -1,6 +1,8 @@
 import { Toaster } from "react-hot-toast"
+import { HabitList } from "../components/HabitList"
 
 export const DashboardPage = () => {
+
   return (
     <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8">
       <Toaster
@@ -16,6 +18,10 @@ export const DashboardPage = () => {
         <div>
           Dashboard
         </div>
+      </div>
+
+      <div>
+        <HabitList />
       </div>
     </div>
   )

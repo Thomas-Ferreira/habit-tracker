@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGODB_URI || "")
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("api/habit", habitRoutes)
+app.use("/api/habit", habitRoutes)
 
 // Test route
 app.get("/api/health", (req: Request, res: Response) => {

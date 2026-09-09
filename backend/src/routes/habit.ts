@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Response } from 'express';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import Habit, { CreateHabitRequest } from '../models/Habit';
 import mongoose from 'mongoose';

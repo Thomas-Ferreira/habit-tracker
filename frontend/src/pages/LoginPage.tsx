@@ -22,14 +22,14 @@ export const LoginPage = () => {
         try {
           await login(email, password)
           toast.success("login successful")
-          navigate('/dashboard')
+          navigate('/')
         } catch (err) {
           setError((err as Error).message)
         }
       } else if (loginType === "Sign Up") {
         try {
           await signup(email, password)
-          navigate('/dashboard')
+          navigate('/')
           toast.success("sign up successful")
         } catch (err) {
           setError((err as Error).message)

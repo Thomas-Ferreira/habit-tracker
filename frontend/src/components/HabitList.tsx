@@ -3,12 +3,11 @@ import { useEffect, useState } from "react";
 import type { Habit } from "../types";
 import { HabitCard } from "./HabitCard";
 import { HabitForm } from "./HabitForm";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export const HabitList = () => {
 
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token")
+  const token = useAuth().token
 
   const [habits, setHabits] = useState<Habit[]>([])
   const [loading, setLoading] = useState<boolean>(false)
@@ -30,10 +29,9 @@ export const HabitList = () => {
   }
 
   useEffect(() => {
-    fetchHabits();
-  }, []);
+    if (token) fetchHabits();
+  }, [token]);
 
-  if (!token) return navigate('/login');
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>Erreur: {error}</div>;
 
@@ -41,7 +39,7 @@ export const HabitList = () => {
     if (displayForm) {
       return (
         <div>
-          <HabitForm token={token} onHabitCreated={() => { setDisplayForm(false); fetchHabits() }} />
+          <HabitForm token={token!} onHabitCreated={() => { setDisplayForm(false); fetchHabits() }} />
         </div>
       );
     } else {
@@ -75,7 +73,7 @@ export const HabitList = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {habits.map(habit => (
-            <HabitCard key={habit._id} habit={habit} token={token} onHabitDeleted={() => fetchHabits()} />
+            <HabitCard key={habit._id} habit={habit} token={token!} onHabitDeleted={() => fetchHabits()} />
           ))}
         </div>
       )}

@@ -7,7 +7,7 @@ type ProtectedRouteProps = {
 
 export const ProtectedRoute = ({ token, children }: ProtectedRouteProps) => {
   if (!token) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

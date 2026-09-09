@@ -11,8 +11,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path='/' element={<LoginPage />} />
-      <Route path='/dashboard' element={
+      <Route path='/login' element={<LoginPage />} />
+      <Route path='/' element={
         <ProtectedRoute token={token}>
           <DashboardPage />
         </ProtectedRoute>

@@ -9,7 +9,6 @@ interface IHabitLog extends Document {
 }
 
 export interface CreateHabitLogRequest {
-  date: Date,
   habitId: string,
   completed: boolean,
 }
@@ -29,7 +28,7 @@ const habitLogSchema = new Schema<IHabitLog>({
     type: Date,
     default: () => {
       const today = new Date();
-      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
     }
   },
   completed: {

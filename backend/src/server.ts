@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import habitRoutes from './routes/habit';
+import habitLogRoutes from './routes/habitLog'
 
 
 dotenv.config()
@@ -20,8 +21,9 @@ mongoose.connect(process.env.MONGODB_URI || "")
   .catch(err => console.error('❌ MongoDB error:', err))
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes)
 app.use("/api/habit", habitRoutes)
+app.use("/api/habit-log", habitLogRoutes)
 
 // Test route
 app.get("/api/health", (req: Request, res: Response) => {

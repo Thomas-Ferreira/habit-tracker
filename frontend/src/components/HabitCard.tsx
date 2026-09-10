@@ -5,11 +5,12 @@ import axios from "axios";
 type HabitCardProps = {
   habit: Habit,
   token: string,
-  onHabitDeleted: (habitId: string) => void;
+  completed: boolean,
+  onHabitUpdate: (habitId: string) => void;
 }
 
 export const HabitCard = (props: HabitCardProps) => {
-  const { habit, token, onHabitDeleted } = props
+  const { habit, token, completed, onHabitUpdate: onHabitUpdate } = props
 
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -20,13 +21,27 @@ export const HabitCard = (props: HabitCardProps) => {
         `http://localhost:5000/api/habit/${habit._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      onHabitDeleted(habit._id);
+      onHabitUpdate(habit._id);
     } catch (err) {
       console.error('Delete failed:', err);
     } finally {
       setIsDeleting(false);
     }
   };
+
+  const handleCompleted = async () => {
+    try {
+      await axios.post(
+        "http://localhost:5000/api/habit-log",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      onHabitUpdate(habit._id);
+    } catch (err) {
+      console.error('Delete failed:', err);
+    } finally {
+      //TODO change status
+    }
+  }
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex flex-col gap-3">
@@ -57,7 +72,7 @@ export const HabitCard = (props: HabitCardProps) => {
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
-          defaultChecked={false}
+          defaultChecked={completed}
           className="w-4 h-4 rounded"
         />
         <span className="text-xs text-gray-400">Completed today</span>

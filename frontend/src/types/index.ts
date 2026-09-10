@@ -8,6 +8,14 @@ export type Habit = {
   createdAt: Date
 }
 
+export type HabitLog = {
+  _id: string,
+  userId: string,
+  habitId: string,
+  date: Date,
+  completed: boolean,
+}
+
 export const habitFrequencyArray = ['daily', 'weekly', 'monthly'] as const
 export type HabitFrequency = typeof habitFrequencyArray[number]
 

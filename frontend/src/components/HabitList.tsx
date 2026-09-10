@@ -1,15 +1,23 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import type { Habit } from "../types";
+import type { Habit, HabitLog } from "../types";
 import { HabitCard } from "./HabitCard";
 import { HabitForm } from "./HabitForm";
 import { useAuth } from "../hooks/useAuth";
+import { loading as loadingComponent } from "../common/loading";
+
+function getCompletedStatus(logs: HabitLog[], habitId: string): boolean {
+  const log = logs.find((l) => l.habitId === habitId)
+  if (log) return log.completed
+  return false
+}
 
 export const HabitList = () => {
 
   const token = useAuth().token
 
   const [habits, setHabits] = useState<Habit[]>([])
+  const [habitsLog, setHabitsLog] = useState<HabitLog[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const [displayForm, setDisplayForm] = useState<boolean>(false)
@@ -28,12 +36,33 @@ export const HabitList = () => {
     }
   }
 
+  const fecthHabitsLog = async () => {
+    setLoading(true)
+    setError("")
+
+    try {
+      const res = await axios.get('http://localhost:5000/api/habit-log?startDate=2026-09-10&endDate=2026-09-10', { headers: { Authorization: `Bearer ${token}` } });
+      console.log(res);
+
+      setHabitsLog(res.data ?? []);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    if (token) fetchHabits();
+    if (token) {
+      fetchHabits()
+      fecthHabitsLog()
+    }
   }, [token]);
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return loadingComponent();
   if (error) return <div>Erreur: {error}</div>;
+
+  console.log(habitsLog);
 
   const renderHabitAction = () => {
     if (displayForm) {
@@ -73,7 +102,12 @@ export const HabitList = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {habits.map(habit => (
-            <HabitCard key={habit._id} habit={habit} token={token!} onHabitDeleted={() => fetchHabits()} />
+            <HabitCard
+              key={habit._id}
+              habit={habit}
+              completed={getCompletedStatus(habitsLog, habit._id)}
+              token={token!}
+              onHabitUpdate={() => fetchHabits()} />
           ))}
         </div>
       )}

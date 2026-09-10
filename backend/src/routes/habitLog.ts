@@ -20,12 +20,14 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       habitId?: string;
     };
 
-    if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'startDate and endDate are required' });
+    if ((startDate && !endDate) || (!startDate && endDate)) {
+      return res.status(400).json({ error: 'startDate and endDate are required together' });
     }
 
-    const start = parseQueryDate(startDate);
-    const end = parseQueryDate(endDate);
+    const today = new Date();
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const start = startDate ? parseQueryDate(startDate) : todayDate;
+    const end = endDate ? parseQueryDate(endDate) : todayDate;
 
     if (!start || !end) {
       return res.status(400).json({ error: 'startDate and endDate must be valid dates' });
@@ -54,7 +56,7 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     if (habitId) filter.habitId = new mongoose.Types.ObjectId(habitId);
 
     const habitLogs = await HabitLog.find(filter as any);
-    res.json({ habitLogs });
+    res.json(habitLogs);
 
   } catch (error) {
     console.error(error);

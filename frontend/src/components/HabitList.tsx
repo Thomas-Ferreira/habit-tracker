@@ -46,8 +46,7 @@ export const HabitList = () => {
               key={habit._id}
               habit={habit}
               completed={getCompletedStatus(habitsLog, habit._id)}
-              token={token!}
-              onHabitUpdate={() => undefined} />
+              token={token!} />
           ))}
         </div>
       )}

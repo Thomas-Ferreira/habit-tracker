@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { habitCategoryArray, habitFrequencyArray, type HabitCategory, type HabitFrequency } from "../types"
-import axios from "axios"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createHabit } from "../api/habit"
 
 type HabitFormProps = {
   onHabitCreated: () => void,
@@ -15,28 +16,19 @@ export const HabitForm = (props: HabitFormProps) => {
   const [description, setDescription] = useState<string>('')
   const [frequency, setFrequency] = useState<HabitFrequency>('daily')
 
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
+  const queryClient = useQueryClient()
+  const createHabitMutation = useMutation({
+    mutationFn: () => createHabit(token, name, category, description, frequency),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["habits", token] })
+      onHabitCreated()
+    },
+  })
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    try {
-      await axios.post(
-        'http://localhost:5000/api/habit',
-        { name, category, description, frequency },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      onHabitCreated()
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setLoading(false)
-    }
+    createHabitMutation.mutate()
   }
-
 
   return (
     <form onSubmit={handleSubmit} className="flex max-w-xl flex-col gap-5 rounded-lg border border-gray-800 bg-gray-900 p-6 shadow-xl shadow-black/20">
@@ -56,7 +48,11 @@ export const HabitForm = (props: HabitFormProps) => {
         </button>
       </div>
 
-      {error && <div role="alert" className="rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-300">{error}</div>}
+      {createHabitMutation.isError && (
+        <div role="alert" className="rounded-md border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-300">
+          {createHabitMutation.error.message}
+        </div>
+      )}
 
       <label className="flex flex-col gap-2 text-sm font-medium text-gray-200">
         Nom
@@ -116,10 +112,10 @@ export const HabitForm = (props: HabitFormProps) => {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={createHabitMutation.isPending}
         className="mt-1 inline-flex items-center justify-center rounded-md border border-emerald-400/40 bg-emerald-500 px-4 py-3 text-sm font-semibold text-gray-950 transition-colors hover:border-emerald-300 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? 'Création...' : 'Créer l’habitude'}
+        {createHabitMutation.isPending ? 'Création...' : 'Créer l’habitude'}
       </button>
     </form>
   );

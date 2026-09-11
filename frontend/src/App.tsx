@@ -4,15 +4,13 @@ import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { useAuth } from './hooks/useAuth'
 import { ProtectedRoute } from './components/PrivateRoute'
-import { loading } from './common/loading'
+import { Loading } from './common/loading'
 
 function App() {
 
   const { token, isLoading } = useAuth()
 
-  if (isLoading) {
-    return loading()
-  }
+  if (isLoading) return <Loading />
 
   return (
     <Routes>

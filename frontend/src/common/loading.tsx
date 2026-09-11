@@ -1,4 +1,4 @@
-export const loading = () => {
+export const Loading = () => {
   return (
     <div
       role="status"

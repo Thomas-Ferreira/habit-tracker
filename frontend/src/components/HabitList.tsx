@@ -1,9 +1,9 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
 import type { Habit, HabitLog } from "../types";
 import { HabitCard } from "./HabitCard";
 import { useAuth } from "../hooks/useAuth";
-import { loading as loadingComponent } from "../common/loading";
+import { Loading } from "../common/loading";
+import { useQuery } from '@tanstack/react-query'
+import { fecthHabitsLog, fetchHabits } from "../api/habit";
 
 function getCompletedStatus(logs: HabitLog[], habitId: string): boolean {
   const log = logs.find((l) => l.habitId === habitId)
@@ -15,52 +15,23 @@ export const HabitList = () => {
 
   const token = useAuth().token
 
-  const [habits, setHabits] = useState<Habit[]>([])
-  const [habitsLog, setHabitsLog] = useState<HabitLog[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
+  const { data: habits = [], isLoading: isLoadingHabits, isError: isHabitsError, error: habitsError, } = useQuery<Habit[]>({
+    queryKey: ["habits", token],
+    queryFn: () => fetchHabits(token!),
+    enabled: Boolean(token),
+  })
 
-  const fetchHabits = async () => {
-    setLoading(true);
-    setError("")
+  const { data: habitsLog = [], isLoading: isLoadingLogs, isError: isLogsError, error: logsError, } = useQuery<HabitLog[]>({
+    queryKey: ["habitsLog", token],
+    queryFn: () => fecthHabitsLog(token!),
+    enabled: Boolean(token),
+  })
 
-    try {
-      const res = await axios.get('http://localhost:5000/api/habit', { headers: { Authorization: `Bearer ${token}` } });
-      setHabits(res.data.habits ?? []);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  if (isLoadingHabits || isLoadingLogs) return <Loading />
 
-  const fecthHabitsLog = async () => {
-    setLoading(true)
-    setError("")
+  if (isHabitsError) return <div>Erreur lors du chargement des habitudes : {habitsError.message}</div>
 
-    try {
-      const res = await axios.get('http://localhost:5000/api/habit-log', { headers: { Authorization: `Bearer ${token}` } });
-      setHabitsLog(res.data ?? []);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const refreshHabitData = async () => {
-    await Promise.all([fetchHabits(), fecthHabitsLog()]);
-  }
-
-  useEffect(() => {
-    if (token) {
-      fetchHabits()
-      fecthHabitsLog()
-    }
-  }, [token]);
-
-  if (loading) return loadingComponent()
-  if (error) return <div>Erreur: {error}</div>
+  if (isLogsError) return <div>Erreur lors du chargement des statuts : {logsError.message}</div>
 
   return (
     <>
@@ -76,7 +47,7 @@ export const HabitList = () => {
               habit={habit}
               completed={getCompletedStatus(habitsLog, habit._id)}
               token={token!}
-              onHabitUpdate={() => refreshHabitData()} />
+              onHabitUpdate={() => undefined} />
           ))}
         </div>
       )}

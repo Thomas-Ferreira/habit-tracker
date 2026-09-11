@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { Habit } from "../types"
 import axios from "axios";
 
@@ -10,12 +10,17 @@ type HabitCardProps = {
 }
 
 export const HabitCard = (props: HabitCardProps) => {
-  const { habit, token, completed, onHabitUpdate: onHabitUpdate } = props
+  const { habit, token, onHabitUpdate } = props
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const [completed, setCompleted] = useState<boolean>(props.completed);
+
+  useEffect(() => {
+    setCompleted(props.completed)
+  }, [props.completed])
 
   const handleDelete = async () => {
-    setIsDeleting(true);
+    setIsUpdating(true);
     try {
       await axios.delete(
         `http://localhost:5000/api/habit/${habit._id}`,
@@ -25,21 +30,28 @@ export const HabitCard = (props: HabitCardProps) => {
     } catch (err) {
       console.error('Delete failed:', err);
     } finally {
-      setIsDeleting(false);
+      setIsUpdating(false);
     }
   };
 
   const handleCompleted = async () => {
+    if (isUpdating) return;
+    const nextCompleted = !completed;
+    setIsUpdating(true);
+    setCompleted(nextCompleted);
     try {
       await axios.post(
         "http://localhost:5000/api/habit-log",
+        { habitId: habit._id, completed: nextCompleted },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       onHabitUpdate(habit._id);
     } catch (err) {
-      console.error('Delete failed:', err);
+      setCompleted(completed);
+      console.error('Update failed:', err);
     } finally {
-      //TODO change status
+      console.log(completed);
+      setIsUpdating(false);
     }
   }
 
@@ -53,10 +65,10 @@ export const HabitCard = (props: HabitCardProps) => {
         </div>
         <button
           onClick={handleDelete}
-          disabled={isDeleting}
+          disabled={isUpdating}
           className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-700 text-lg text-gray-400 transition-colors hover:border-red-400 hover:bg-red-400/10 hover:text-red-400"
         >
-          {isDeleting ? '...' : '✕'}
+          {isUpdating ? '...' : '✕'}
         </button>
       </div>
 
@@ -72,8 +84,10 @@ export const HabitCard = (props: HabitCardProps) => {
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
-          defaultChecked={completed}
+          checked={completed}
           className="w-4 h-4 rounded"
+          disabled={isUpdating}
+          onChange={handleCompleted}
         />
         <span className="text-xs text-gray-400">Completed today</span>
       </label>

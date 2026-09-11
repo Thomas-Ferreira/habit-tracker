@@ -41,15 +41,17 @@ export const HabitList = () => {
     setError("")
 
     try {
-      const res = await axios.get('http://localhost:5000/api/habit-log?startDate=2026-09-10&endDate=2026-09-10', { headers: { Authorization: `Bearer ${token}` } });
-      console.log(res);
-
+      const res = await axios.get('http://localhost:5000/api/habit-log', { headers: { Authorization: `Bearer ${token}` } });
       setHabitsLog(res.data ?? []);
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setLoading(false);
     }
+  }
+
+  const refreshHabitData = async () => {
+    await Promise.all([fetchHabits(), fecthHabitsLog()]);
   }
 
   useEffect(() => {
@@ -59,10 +61,8 @@ export const HabitList = () => {
     }
   }, [token]);
 
-  if (loading) return loadingComponent();
-  if (error) return <div>Erreur: {error}</div>;
-
-  console.log(habitsLog);
+  if (loading) return loadingComponent()
+  if (error) return <div>Erreur: {error}</div>
 
   const renderHabitAction = () => {
     if (displayForm) {
@@ -107,7 +107,7 @@ export const HabitList = () => {
               habit={habit}
               completed={getCompletedStatus(habitsLog, habit._id)}
               token={token!}
-              onHabitUpdate={() => fetchHabits()} />
+              onHabitUpdate={() => refreshHabitData()} />
           ))}
         </div>
       )}

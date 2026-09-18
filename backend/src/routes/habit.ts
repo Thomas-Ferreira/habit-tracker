@@ -1,6 +1,7 @@
 import express, { Router, Response } from 'express';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import Habit, { CreateHabitRequest } from '../models/Habit';
+import HabitLog from '../models/HabitLog';
 import mongoose from 'mongoose';
 
 type HabitRequest = AuthRequest<{}, {}, CreateHabitRequest>;
@@ -75,6 +76,7 @@ router.delete("/:habitId", authenticateToken, async (req: AuthRequest<{ habitId:
     if (!habit) return res.status(404).json({ error: 'Habit not found' });
     if (habit.userId.toString() !== userId) return res.status(403).json({ error: 'Unauthorized' });
 
+    await HabitLog.deleteMany({ habitId, userId } as any);
     await Habit.deleteOne({ _id: habitId });
 
     res.json({ message: 'Habit deleted successfully' });

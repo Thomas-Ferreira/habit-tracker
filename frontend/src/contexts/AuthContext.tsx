@@ -24,6 +24,34 @@ export interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+type TokenPayload = {
+  id?: unknown;
+  email?: unknown;
+  exp?: unknown;
+};
+
+const decodeToken = (token: string): User | null => {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const decodedPayload = JSON.parse(atob(normalizedPayload)) as TokenPayload;
+
+    if (
+      typeof decodedPayload.id !== 'string' ||
+      typeof decodedPayload.email !== 'string' ||
+      (typeof decodedPayload.exp === 'number' && decodedPayload.exp * 1000 <= Date.now())
+    ) {
+      return null;
+    }
+
+    return { id: decodedPayload.id, email: decodedPayload.email };
+  } catch {
+    return null;
+  }
+};
+
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(null);
@@ -34,9 +62,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const checkAuth = () => {
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
-      setToken(savedToken);
-      // TODO: Décoder le token pour récupérer l'user info
-      // Pour l'instant, on va juste le stocker
+      const decodedUser = decodeToken(savedToken);
+
+      if (decodedUser) {
+        setToken(savedToken);
+        setUser(decodedUser);
+      } else {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      }
     }
     setIsLoading(false);
   };

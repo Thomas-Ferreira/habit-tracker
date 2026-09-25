@@ -1,6 +1,6 @@
 import mongoose, { Document, ObjectId, Schema } from "mongoose"
 
-interface IHabitLog extends Document {
+export interface IHabitLog extends Document {
   userId: ObjectId,
   habitId: ObjectId,
   date: Date,

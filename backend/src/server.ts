@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import habitRoutes from './routes/habit';
 import habitLogRoutes from './routes/habitLog'
+import stats from "./routes/stats"
 
 
 dotenv.config()
@@ -24,6 +25,7 @@ mongoose.connect(process.env.MONGODB_URI || "")
 app.use("/api/auth", authRoutes)
 app.use("/api/habit", habitRoutes)
 app.use("/api/habit-log", habitLogRoutes)
+app.use("/api/analytics", stats)
 
 // Test route
 app.get("/api/health", (req: Request, res: Response) => {

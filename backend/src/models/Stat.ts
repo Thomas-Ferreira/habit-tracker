@@ -1,16 +1,16 @@
-interface BaseStat {
+export interface BaseStat {
   streak: number;
   completed: number;
   completionRate: number;
 }
 
-interface HabitStat extends BaseStat {
+export interface HabitStat extends BaseStat {
   habitId: string;
   name: string;
   category: string;
 }
 
-interface AnalyticsStats {
+export interface AnalyticsStats {
   overallStats: BaseStat;
   habits: HabitStat[];
 }

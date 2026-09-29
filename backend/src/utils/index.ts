@@ -22,22 +22,48 @@ export function parseQueryDate(value: string): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function calculateStreak(logs: IHabitLog[]): number {
-  const sortedLogs = [...logs].sort(
-    (firstLog, secondLog) => secondLog.date.getTime() - firstLog.date.getTime()
-  );
-
-  let streak = 0;
-  for (const log of sortedLogs) {
-    if (!log.completed) break;
-    streak++;
-  }
-
-  return streak;
+function getCalendarDayNumber(date: Date): number {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000;
 }
 
-export function calculateCompletionRate(logs: IHabitLog[]): number {
-  const completedLog = logs.filter((l) => l.completed === true)
-  if (logs.length === 0) return 0
-  return (completedLog.length / logs.length) * 100
+function getCompletedDays(logs: IHabitLog[]): Set<number> {
+  return new Set(
+    logs
+      .filter((log) => log.completed)
+      .map((log) => getCalendarDayNumber(new Date(log.date)))
+  );
+}
+
+export function calculateStreak(logs: IHabitLog[], startDate: Date, endDate: Date): number {
+  const completedDays = getCompletedDays(logs);
+  let currentStreak = 0;
+
+  for (let day = getCalendarDayNumber(endDate); day >= getCalendarDayNumber(startDate); day--) {
+    if (!completedDays.has(day)) break;
+    currentStreak++;
+  }
+
+  return currentStreak;
+}
+
+export function calculateCompletionRate(
+  logs: IHabitLog[],
+  startDate?: Date,
+  endDate?: Date
+): number {
+  if (!startDate || !endDate) {
+    if (logs.length === 0) return 0;
+    return (logs.filter((log) => log.completed).length / logs.length) * 100;
+  }
+
+  const startDay = getCalendarDayNumber(startDate);
+  const endDay = getCalendarDayNumber(endDate);
+  if (endDay < startDay) return 0;
+
+  const totalDays = endDay - startDay + 1;
+  const completedDays = [...getCompletedDays(logs)].filter(
+    (day) => day >= startDay && day <= endDay
+  ).length;
+
+  return (completedDays / totalDays) * 100;
 }

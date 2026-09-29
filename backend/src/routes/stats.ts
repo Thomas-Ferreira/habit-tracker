@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import HabitLog, { IHabitLog } from "../models/HabitLog";
 import Habit from "../models/Habit";
 import { calculateCompletionRate, calculateStreak, parseQueryDate } from "../utils";
+import { HabitStat, BaseStat, AnalyticsStats } from "../models/Stat";
 
 const router: Router = express.Router();
 
@@ -17,28 +18,28 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       startDate?: string;
       endDate?: string;
     };
-    if ((startDate && !endDate) || (!startDate && endDate)) {
-      return res.status(400).json({ error: 'startDate and endDate are required together' });
-    }
 
     const today = new Date();
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const defaultStartDate = new Date(todayDate);
-    defaultStartDate.setDate(defaultStartDate.getDate() - 6);
-    const start = startDate ? parseQueryDate(startDate) : defaultStartDate;
-    const end = endDate ? parseQueryDate(endDate) : todayDate;
+    const parsedStartDate = startDate ? parseQueryDate(startDate) : null;
+    const parsedEndDate = endDate ? parseQueryDate(endDate) : null;
 
-    if (!start || !end) {
+    if ((startDate && !parsedStartDate) || (endDate && !parsedEndDate)) {
       return res.status(400).json({ error: 'startDate and endDate must be valid dates' });
     }
+
+    const start = parsedStartDate ?? new Date(parsedEndDate ?? todayDate);
+    const end = parsedEndDate ?? new Date(todayDate);
+    if (!parsedStartDate) start.setDate(start.getDate() - 6);
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
     if (start > end) {
       return res.status(400).json({ error: 'startDate must be before or equal to endDate' });
     }
 
-    const startOfDay = new Date(start);
-    startOfDay.setHours(0, 0, 0, 0);
+    const startOfDay = start;
     const startOfDayAfterEnd = new Date(end);
-    startOfDayAfterEnd.setHours(0, 0, 0, 0);
     startOfDayAfterEnd.setDate(startOfDayAfterEnd.getDate() + 1);
 
     const filter: Record<string, unknown> = {
@@ -54,14 +55,14 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     const overallStats: BaseStat = {
       completed: habitLogs.filter((h) => h.completed === true).length,
       completionRate: calculateCompletionRate(habitLogs),
-      streak: calculateStreak(habitLogs)
+      streak: 0 //TODO CALCULATE AVERAGE STREAK
     }
 
     // STATS PER HABIT
     for (const habit of habits) {
       const logs: IHabitLog[] = habitLogs.filter((log) => log.habitId.toString() === habit._id.toString());
-      const streak = calculateStreak(logs);
-      const completionRate = calculateCompletionRate(logs)
+      const streak = calculateStreak(logs, start, end);
+      const completionRate = calculateCompletionRate(logs, start, end)
 
       habitStats.push({
         habitId: habit._id.toString(),

@@ -3,7 +3,7 @@ import { authenticateToken, AuthRequest } from "../middleware/auth";
 import mongoose from "mongoose";
 import HabitLog, { IHabitLog } from "../models/HabitLog";
 import Habit from "../models/Habit";
-import { calculateCompletionRate, calculateStreak, parseQueryDate } from "../utils";
+import { calculateCompletionRate, calculateStreak, countCompletedHabitPeriods, parseQueryDate } from "../utils";
 import { HabitStat, BaseStat, AnalyticsStats } from "../models/Stat";
 
 const router: Router = express.Router();
@@ -14,17 +14,24 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     if (!req.user) return res.status(400).json({ error: 'login required' });
     const userId = new mongoose.Types.ObjectId(req.user.id)
 
-    const { startDate, endDate } = req.query as {
-      startDate?: string;
-      endDate?: string;
-    };
+    const rawStartDate = req.query.startDate;
+    const rawEndDate = req.query.endDate;
+    if (
+      (rawStartDate !== undefined && typeof rawStartDate !== "string") ||
+      (rawEndDate !== undefined && typeof rawEndDate !== "string")
+    ) {
+      return res.status(400).json({ error: "startDate and endDate must be single date strings" });
+    }
+
+    const startDate = rawStartDate as string | undefined;
+    const endDate = rawEndDate as string | undefined;
 
     const today = new Date();
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const parsedStartDate = startDate ? parseQueryDate(startDate) : null;
     const parsedEndDate = endDate ? parseQueryDate(endDate) : null;
 
-    if ((startDate && !parsedStartDate) || (endDate && !parsedEndDate)) {
+    if ((startDate !== undefined && !parsedStartDate) || (endDate !== undefined && !parsedEndDate)) {
       return res.status(400).json({ error: 'startDate and endDate must be valid dates' });
     }
 
@@ -54,25 +61,27 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     // STATS PER HABIT
     for (const habit of habits) {
       const logs: IHabitLog[] = habitLogs.filter((log) => log.habitId.toString() === habit._id.toString());
-      const streak = calculateStreak(logs, start, end);
-      const completionRate = calculateCompletionRate(logs, start, end)
+      const streak = calculateStreak(logs, start, end, habit.frequency, habit.createdAt);
+      const completionRate = calculateCompletionRate(logs, start, end, [habit]);
 
       habitStats.push({
         habitId: habit._id.toString(),
         name: habit.name,
         category: habit.category,
-        completed: logs.filter((l) => l.completed === true).length,
+        completed: countCompletedHabitPeriods(logs, start, end, [habit]),
         completionRate,
         streak
       })
     }
 
-    const averageStreak: number = habits.length === 0 ? 0 : habitStats.reduce((sum, habit) => sum + habit.streak, 0) / habitStats.length
+    const averageStreak: number = habits.length === 0
+      ? 0
+      : Math.round(habitStats.reduce((sum, habit) => sum + habit.streak, 0) / habitStats.length);
 
     //OVERALLSTATS
     const overallStats: BaseStat = {
-      completed: habitLogs.filter((h) => h.completed === true).length,
-      completionRate: calculateCompletionRate(habitLogs, start, end, habits.length),
+      completed: countCompletedHabitPeriods(habitLogs, start, end, habits),
+      completionRate: calculateCompletionRate(habitLogs, start, end, habits),
       streak: averageStreak
     }
 

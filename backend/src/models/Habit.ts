@@ -1,6 +1,6 @@
 import mongoose, { Document, ObjectId, Schema } from "mongoose";
 
-interface IHabit extends Document {
+export interface IHabit extends Document {
   name: string,
   userId: ObjectId,
   description: string,

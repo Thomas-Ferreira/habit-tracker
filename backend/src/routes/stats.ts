@@ -51,13 +51,6 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
 
     const habitStats: HabitStat[] = []
 
-    //OVERALLSTATS
-    const overallStats: BaseStat = {
-      completed: habitLogs.filter((h) => h.completed === true).length,
-      completionRate: calculateCompletionRate(habitLogs),
-      streak: 0 //TODO CALCULATE AVERAGE STREAK
-    }
-
     // STATS PER HABIT
     for (const habit of habits) {
       const logs: IHabitLog[] = habitLogs.filter((log) => log.habitId.toString() === habit._id.toString());
@@ -72,6 +65,15 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
         completionRate,
         streak
       })
+    }
+
+    const averageStreak: number = habits.length === 0 ? 0 : habitStats.reduce((sum, habit) => sum + habit.streak, 0) / habitStats.length
+
+    //OVERALLSTATS
+    const overallStats: BaseStat = {
+      completed: habitLogs.filter((h) => h.completed === true).length,
+      completionRate: calculateCompletionRate(habitLogs, start, end, habits.length),
+      streak: averageStreak
     }
 
     const result: AnalyticsStats = {

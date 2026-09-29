@@ -48,22 +48,23 @@ export function calculateStreak(logs: IHabitLog[], startDate: Date, endDate: Dat
 
 export function calculateCompletionRate(
   logs: IHabitLog[],
-  startDate?: Date,
-  endDate?: Date
+  startDate: Date,
+  endDate: Date,
+  habitCount = 1
 ): number {
-  if (!startDate || !endDate) {
-    if (logs.length === 0) return 0;
-    return (logs.filter((log) => log.completed).length / logs.length) * 100;
-  }
-
   const startDay = getCalendarDayNumber(startDate);
   const endDay = getCalendarDayNumber(endDate);
-  if (endDay < startDay) return 0;
+  if (endDay < startDay || habitCount <= 0) return 0;
 
   const totalDays = endDay - startDay + 1;
-  const completedDays = [...getCompletedDays(logs)].filter(
-    (day) => day >= startDay && day <= endDay
-  ).length;
+  const completedHabitDays = new Set<string>();
+  for (const log of logs) {
+    if (!log.completed) continue;
+    const day = getCalendarDayNumber(new Date(log.date));
+    if (day < startDay || day > endDay) continue;
+    completedHabitDays.add(`${log.habitId.toString()}:${day}`);
+  }
 
-  return (completedDays / totalDays) * 100;
+  const totalOpportunities = totalDays * habitCount;
+  return Math.round((completedHabitDays.size / totalOpportunities) * 100);
 }

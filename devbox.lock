@@ -35,7 +35,7 @@
     },
     "nodejs@latest": {
       "last_modified": "2026-08-06T00:10:29Z",
-      "plugin_version": "0.0.4",
+      "plugin_version": "0.0.5",
       "resolved": "github:NixOS/nixpkgs/70ce234312134a463ba7728e94da2486a1d237ac#nodejs_26",
       "source": "devbox-search",
       "version": "26.7.0",

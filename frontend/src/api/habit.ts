@@ -1,8 +1,9 @@
 import axios from "axios";
 import type { Habit, HabitCategory, HabitFrequency, HabitLog } from "../types";
 
-const HABIT_BASE_URL = "http://localhost:5000/api/habit"
-const HABIT_LOG_BASE_URL = "http://localhost:5000/api/habit-log"
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+const HABIT_BASE_URL = `${API_BASE_URL}/api/habit`
+const HABIT_LOG_BASE_URL = `${API_BASE_URL}/api/habit-log`
 
 //HABITS
 

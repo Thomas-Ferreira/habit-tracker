@@ -3,6 +3,8 @@ import type { AxiosError } from "axios";
 import axios from "axios";
 import { createContext, useEffect, useState, type ReactNode } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 export interface User {
   id: string;
   email: string;
@@ -82,7 +84,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/auth/login',
+        `${API_BASE_URL}/api/auth/login`,
         { email, password }
       );
 
@@ -108,7 +110,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/auth/signup',
+        `${API_BASE_URL}/api/auth/signup`,
         { email, password }
       );
 

@@ -18,12 +18,10 @@ export const DashboardPage = () => {
 
   return (
     <div>
-      <h2>Dashboard </h2>
+      <h2>Stats Global </h2>
 
-      <div>
+      <div className="grid grid-cols-2 gap-3 p-4 rounded-lg shadow-lg flex flex-row justify-center items-center mt-4">
         <StatCard label="Completion Rate" value={75} unit="%" icon="🎯" />
-      </div>
-      <div>
         <ProgressChart title="Derniers 7 jours" data={mockData}/>
       </div>
     </div>

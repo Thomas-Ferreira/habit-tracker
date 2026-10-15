@@ -7,7 +7,8 @@ interface StatCardProps {
   icon?: React.ReactNode;
 }
 
-export const StatCard = ({ label, value, unit = '', icon }: StatCardProps) => {
+export const StatCard = (props: StatCardProps) => {
+  const { label, value, unit, icon } = props;
   const cardColor = value >= 70 ? "border-green-500" : "border-red-500";
 
   return (

@@ -90,7 +90,7 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       habits: habitStats
     }
 
-    res.json({ result })
+    res.json(result)
 
   } catch (error) {
     console.error(error);

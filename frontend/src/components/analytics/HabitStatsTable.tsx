@@ -1,11 +1,11 @@
 import type { HabitStats } from "../../types";
 
 interface HabitStatsTableProps {
-  stats: HabitStats[];
+  stats?: HabitStats[];
 }
 
 export const HabitStatsTable = (props: HabitStatsTableProps) => {
-  const { stats } = props;
+  const { stats = [] } = props;
 
   return (
     <div className=" rounded-xl border border-gray-800 bg-gray-900 overflow-x-auto">

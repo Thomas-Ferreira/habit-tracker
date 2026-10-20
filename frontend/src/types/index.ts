@@ -16,11 +16,20 @@ export type HabitLog = {
   completed: boolean,
 }
 
-export interface HabitStats {
-  name: string;
-  habitId: string;
+export type OverallStats = {
+  completed: number
   streak: number;
   completionRate: number;
+}
+export type HabitStats = OverallStats & {
+  name: string;
+  habitId: string;
+  category: HabitCategory
+}
+
+export type AnalyticsStats = {
+  overallStats: OverallStats;
+  habits: HabitStats[];
 }
 
 export const habitFrequencyArray = ['daily', 'weekly', 'monthly'] as const

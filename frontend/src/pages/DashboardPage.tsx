@@ -1,83 +1,35 @@
 import { useState } from "react";
 import { ProgressChart } from "../components/analytics/ProgressChart";
 import { StatCard } from "../components/analytics/StatCard";
-import type { HabitLog, HabitStats } from "../types";
 import { HabitStatsTable } from "../components/analytics/HabitStatsTable";
-
-const mockProgressChartData: HabitLog[] = [
-  {
-    _id: "1",
-    userId: "user1",
-    habitId: "habit1",
-    date: new Date("2023-10-10"),
-    completed: true,
-  },
-  {
-    _id: "3",
-    userId: "user1",
-    habitId: "habit1",
-    date: new Date("2023-10-11"),
-    completed: true,
-  },
-  {
-    _id: "4",
-    userId: "user1",
-    habitId: "habit2",
-    date: new Date("2023-10-11"),
-    completed: true,
-  },
-  {
-    _id: "6",
-    userId: "user1",
-    habitId: "habit2",
-    date: new Date("2023-10-12"),
-    completed: true,
-  },
-  {
-    _id: "7",
-    userId: "user1",
-    habitId: "habit1",
-    date: new Date("2023-10-13"),
-    completed: true,
-  },
-  {
-    _id: "9",
-    userId: "user1",
-    habitId: "habit1",
-    date: new Date("2023-10-14"),
-    completed: true,
-  },
-  {
-    _id: "10",
-    userId: "user1",
-    habitId: "habit2",
-    date: new Date("2023-10-14"),
-    completed: true,
-  },
-  {
-    _id: "12",
-    userId: "user1",
-    habitId: "habit2",
-    date: new Date("2023-10-15"),
-    completed: true,
-  },
-  {
-    _id: "13",
-    userId: "user1",
-    habitId: "habit1",
-    date: new Date("2023-10-16"),
-    completed: true,
-  },
-];
-
-const mockHabitStatsTableData: HabitStats[] = [
-  { name: "test1", habitId: "1", streak: 5, completionRate: 85 },
-  { name: "test2", habitId: "2", streak: 3, completionRate: 90 },
-  { name: "test3", habitId: "3", streak: 1, completionRate: 100 },
-];
+import { useAuth } from "../hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import type { AnalyticsStats } from "../types";
+import { fetchAnalytics } from "../api/analytics";
+import { Loading } from "../common/loading";
 
 export const DashboardPage = () => {
+  const token = useAuth().token;
   const [chartType, setChartType] = useState<"bar" | "line">("bar");
+
+  const {
+    data: analytics,
+    isLoading: isLoading,
+    isError: isError,
+    error: error,
+  } = useQuery<AnalyticsStats>({
+    queryKey: ["analytics", token],
+    queryFn: () => fetchAnalytics(token!),
+    enabled: Boolean(token),
+  });
+
+  if (isLoading) return <Loading />;
+  if (isError)
+    return <div>Erreur lors du chargement des stats : {error.message}</div>;
+  if (analytics === undefined) return <div>Statistiques non disponibles</div>;
+
+  console.log(analytics);
+
   return (
     <div>
       <h2>Stats Global </h2>
@@ -95,11 +47,11 @@ export const DashboardPage = () => {
           </select>
           <ProgressChart
             title="Derniers 7 jours"
-            data={mockProgressChartData}
+            data={[]}
             chartType={chartType}
           />
         </div>
-        <HabitStatsTable stats={mockHabitStatsTableData} />
+        <HabitStatsTable stats={analytics.habits} />
       </div>
     </div>
   );

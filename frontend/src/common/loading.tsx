@@ -11,5 +11,5 @@ export const Loading = () => {
         <div className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.9)]" />
       </div>
     </div>
-  )
-}
+  );
+};

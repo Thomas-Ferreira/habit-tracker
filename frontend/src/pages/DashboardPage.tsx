@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { AnalyticsStats } from "../types";
 import { fetchAnalytics } from "../api/analytics";
 import { Loading } from "../common/loading";
+import { CompletionRing } from "../components/analytics/CompletionRing";
 
 export const DashboardPage = () => {
   const token = useAuth().token;
@@ -28,15 +29,26 @@ export const DashboardPage = () => {
     return <div>Erreur lors du chargement des stats : {error.message}</div>;
   if (analytics === undefined) return <div>Statistiques non disponibles</div>;
 
-  console.log(analytics);
-
   return (
     <div>
       <h2>Stats Global </h2>
 
-      <div className="grid grid-cols-2 gap-3 p-4 rounded-lg shadow-lg flex flex-row justify-center items-center mt-4">
-        <StatCard label="Completion Rate" value={75} unit="%" icon="🎯" />
-        <div>
+      <div className="flex flex-col gap-3 p-4 rounded-lg shadow-lg mt-4">
+        {analytics.overallStats && (
+          <div className="flex flex-col md:flex-row bg-gray-900">
+            <CompletionRing
+              label="Completion"
+              value={analytics.overallStats.completionRate}
+              unit="%"
+            />
+            <StatCard
+              label="completed"
+              value={analytics.overallStats.completed}
+            />
+            <StatCard label="streak" value={analytics.overallStats.streak} />
+          </div>
+        )}
+        <div className="grid grid-cols-2 mt-4">
           <select
             value={chartType}
             onChange={(e) => setChartType(e.target.value as "bar" | "line")}
@@ -50,8 +62,8 @@ export const DashboardPage = () => {
             data={[]}
             chartType={chartType}
           />
+          <HabitStatsTable stats={analytics.habits} />
         </div>
-        <HabitStatsTable stats={analytics.habits} />
       </div>
     </div>
   );

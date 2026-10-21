@@ -35,7 +35,7 @@ export const DashboardPage = () => {
 
       <div className="flex flex-col gap-3 p-4 rounded-lg shadow-lg mt-4">
         {analytics.overallStats && (
-          <div className="flex flex-col md:flex-row bg-gray-900">
+          <div className="flex flex-col gap-4 md:flex-row bg-gray-900 justify-content rounded-xl shadow-lg">
             <CompletionRing
               label="Completion"
               value={analytics.overallStats.completionRate}
@@ -44,8 +44,13 @@ export const DashboardPage = () => {
             <StatCard
               label="completed"
               value={analytics.overallStats.completed}
+              accentClass="border-gray-800"
             />
-            <StatCard label="streak" value={analytics.overallStats.streak} />
+            <StatCard
+              label="streak"
+              value={analytics.overallStats.streak}
+              accentClass="border-gray-800"
+            />
           </div>
         )}
         <div className="grid grid-cols-2 mt-4">

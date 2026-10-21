@@ -2,8 +2,6 @@ import React from "react";
 import {
   RadialBarChart,
   RadialBar,
-  Legend,
-  Tooltip,
   ResponsiveContainer,
   PolarAngleAxis,
 } from "recharts";

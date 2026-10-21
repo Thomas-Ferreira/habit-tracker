@@ -33,8 +33,8 @@ export async function deleteHabit(token: string | null, habitId: string): Promis
 
 //HABITS LOG
 
-export async function fecthHabitsLog(token: string | null): Promise<HabitLog[]> {
-  const response = await axios.get<HabitLog[]>(HABIT_LOG_BASE_URL, { headers: { Authorization: `Bearer ${token}` } });
+export async function fecthHabitsLogs(token: string | null, startDate: string, endDate: string): Promise<HabitLog[]> {
+  const response = await axios.get<HabitLog[]>(HABIT_LOG_BASE_URL, { headers: { Authorization: `Bearer ${token}` }, params: { startDate, endDate  }, });
   return response.data
 }
 

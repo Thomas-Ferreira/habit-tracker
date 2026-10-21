@@ -8,6 +8,7 @@ import type { AnalyticsStats } from "../types";
 import { fetchAnalytics } from "../api/analytics";
 import { Loading } from "../common/loading";
 import { CompletionRing } from "../components/analytics/CompletionRing";
+import { useHabitLogs } from "../hooks/useHabitLogs";
 
 export const DashboardPage = () => {
   const token = useAuth().token;
@@ -24,9 +25,18 @@ export const DashboardPage = () => {
     enabled: Boolean(token),
   });
 
-  if (isLoading) return <Loading />;
+  const {
+    data: habitLogs = [],
+    isLoading: isLoadingLogs,
+    isError: isLogsError,
+    error: logsError,
+  } = useHabitLogs(token!, "", "");
+
+  if (isLoading || isLoadingLogs) return <Loading />;
   if (isError)
     return <div>Erreur lors du chargement des stats : {error.message}</div>;
+  if (isLogsError)
+    return <div>Erreur lors du chargement des stats : {logsError.message}</div>;
   if (analytics === undefined) return <div>Statistiques non disponibles</div>;
 
   return (
@@ -64,7 +74,7 @@ export const DashboardPage = () => {
           </select>
           <ProgressChart
             title="Derniers 7 jours"
-            data={[]}
+            data={habitLogs}
             chartType={chartType}
           />
           <HabitStatsTable stats={analytics.habits} />

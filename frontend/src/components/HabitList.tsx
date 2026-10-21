@@ -2,44 +2,56 @@ import type { Habit, HabitLog } from "../types";
 import { HabitCard } from "./HabitCard";
 import { useAuth } from "../hooks/useAuth";
 import { Loading } from "../common/loading";
-import { useQuery } from '@tanstack/react-query'
-import { fecthHabitsLog, fetchHabits } from "../api/habit";
+import { useQuery } from "@tanstack/react-query";
+import { fetchHabits } from "../api/habit";
+import { useHabitLogs } from "../hooks/useHabitLogs";
 
 function getCompletedStatus(logs: HabitLog[], habitId: string): boolean {
-  const log = logs.find((l) => l.habitId === habitId)
-  if (log) return log.completed
-  return false
+  const log = logs.find((l) => l.habitId === habitId);
+  if (log) return log.completed;
+  return false;
 }
 
 export const HabitList = () => {
+  const token = useAuth().token;
 
-  const token = useAuth().token
-
-  const { data: habits = [], isLoading: isLoadingHabits, isError: isHabitsError, error: habitsError, } = useQuery<Habit[]>({
+  const {
+    data: habits = [],
+    isLoading: isLoadingHabits,
+    isError: isHabitsError,
+    error: habitsError,
+  } = useQuery<Habit[]>({
     queryKey: ["habits", token],
     queryFn: () => fetchHabits(token!),
     enabled: Boolean(token),
-  })
+  });
 
-  const { data: habitsLog = [], isLoading: isLoadingLogs, isError: isLogsError, error: logsError, } = useQuery<HabitLog[]>({
-    queryKey: ["habitsLog", token],
-    queryFn: () => fecthHabitsLog(token!),
-    enabled: Boolean(token),
-  })
+  const {
+    data: habitsLog = [],
+    isLoading: isLoadingLogs,
+    isError: isLogsError,
+    error: logsError,
+  } = useHabitLogs(token!, "", "");
 
   const completedHabits = habits.filter((habit) =>
-    getCompletedStatus(habitsLog, habit._id)
+    getCompletedStatus(habitsLog, habit._id),
   ).length;
 
   const completionRate = habits.length
     ? Math.round((completedHabits / habits.length) * 100)
     : 0;
 
-  if (isLoadingHabits || isLoadingLogs) return <Loading />
+  if (isLoadingHabits || isLoadingLogs) return <Loading />;
 
-  if (isHabitsError) return <div>Erreur lors du chargement des habitudes : {habitsError.message}</div>
+  if (isHabitsError)
+    return (
+      <div>Erreur lors du chargement des habitudes : {habitsError.message}</div>
+    );
 
-  if (isLogsError) return <div>Erreur lors du chargement des statuts : {logsError.message}</div>
+  if (isLogsError)
+    return (
+      <div>Erreur lors du chargement des statuts : {logsError.message}</div>
+    );
 
   return (
     <>
@@ -49,7 +61,6 @@ export const HabitList = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-
           <div className="rounded-xl border border-gray-700 bg-gray-900/80 p-5 shadow-[0_0_0_1px_rgba(16,185,129,0.08)]">
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
@@ -74,16 +85,17 @@ export const HabitList = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {habits.map(habit => (
+            {habits.map((habit) => (
               <HabitCard
                 key={habit._id}
                 habit={habit}
                 completed={getCompletedStatus(habitsLog, habit._id)}
-                token={token!} />
+                token={token!}
+              />
             ))}
           </div>
         </div>
       )}
     </>
-  )
-}
+  );
+};

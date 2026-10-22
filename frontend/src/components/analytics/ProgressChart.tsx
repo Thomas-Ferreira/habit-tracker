@@ -20,23 +20,12 @@ export const ProgressChart = (props: ProgressChartProps) => {
   const chartData: { date: string; completed: number }[] = [];
 
   const uniqueDates: string[] = Array.from(
-    new Set(
-      data.map((log) =>
-        log.date.toLocaleDateString("fr-FR", {
-          day: "2-digit",
-          month: "2-digit",
-        }),
-      ),
-    ),
+    new Set(data.map((log) => log.date.slice(0, 10))),
   );
 
   for (const date of uniqueDates) {
     const completedHabits = data.filter(
-      (log) =>
-        log.date.toLocaleDateString("fr-FR", {
-          day: "2-digit",
-          month: "2-digit",
-        }) === date && log.completed,
+      (log) => log.date.slice(0, 10) === date && log.completed,
     ).length;
     chartData.push({ date, completed: completedHabits });
   }

@@ -12,7 +12,7 @@ export type HabitLog = {
   _id: string,
   userId: string,
   habitId: string,
-  date: Date,
+  date: string,
   completed: boolean,
 }
 

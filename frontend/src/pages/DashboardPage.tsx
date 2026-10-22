@@ -14,6 +14,15 @@ export const DashboardPage = () => {
   const token = useAuth().token;
   const [chartType, setChartType] = useState<"bar" | "line">("bar");
 
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 6);
+  const endDate = new Date(today);
+
+  // Formater les dates au format YYYY-MM-DD
+  const formattedStartDate = startDate.toISOString().split("T")[0];
+  const formattedEndDate = endDate.toISOString().split("T")[0];
+
   const {
     data: analytics,
     isLoading: isLoading,
@@ -30,7 +39,7 @@ export const DashboardPage = () => {
     isLoading: isLoadingLogs,
     isError: isLogsError,
     error: logsError,
-  } = useHabitLogs(token!, "", "");
+  } = useHabitLogs(token!, formattedStartDate, formattedEndDate);
 
   if (isLoading || isLoadingLogs) return <Loading />;
   if (isError)
@@ -63,21 +72,25 @@ export const DashboardPage = () => {
             />
           </div>
         )}
-        <div className="grid grid-cols-2 mt-4">
-          <select
-            value={chartType}
-            onChange={(e) => setChartType(e.target.value as "bar" | "line")}
-            className="p-2 rounded-lg border border-gray-300"
-          >
-            <option value="bar">BarChart</option>
-            <option value="line">LineChart</option>
-          </select>
-          <ProgressChart
-            title="Derniers 7 jours"
-            data={habitLogs}
-            chartType={chartType}
-          />
-          <HabitStatsTable stats={analytics.habits} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
+          <div>
+            <select
+              value={chartType}
+              onChange={(e) => setChartType(e.target.value as "bar" | "line")}
+              className="rounded-lg border border-gray-800 bg-gray-900 p-2 text-sm text-white"
+            >
+              <option value="bar">BarChart</option>
+              <option value="line">LineChart</option>
+            </select>
+            <ProgressChart
+              title="Derniers 7 jours"
+              data={habitLogs}
+              chartType={chartType}
+            />
+          </div>
+          <div className="min-w-0 overflow-x-auto">
+            <HabitStatsTable stats={analytics.habits} />
+          </div>
         </div>
       </div>
     </div>

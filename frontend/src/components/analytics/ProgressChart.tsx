@@ -23,11 +23,22 @@ export const ProgressChart = (props: ProgressChartProps) => {
     new Set(data.map((log) => log.date.slice(0, 10))),
   );
 
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 6);
+  const endDate = new Date(today);
+
+  for (let day = startDate; day <= endDate; day.setDate(day.getDate() + 1)) {
+    const formattedDay = day.toISOString().split("T")[0];
+    chartData.push({ date: formattedDay, completed: 0 });
+  }
+
   for (const date of uniqueDates) {
     const completedHabits = data.filter(
       (log) => log.date.slice(0, 10) === date && log.completed,
     ).length;
-    chartData.push({ date, completed: completedHabits });
+    const index = chartData.findIndex((d) => d.date === date);
+    chartData[index].completed = completedHabits;
   }
 
   return (
@@ -36,7 +47,16 @@ export const ProgressChart = (props: ProgressChartProps) => {
       <ResponsiveContainer width="100%" height={300}>
         {chartType === "bar" ? (
           <BarChart data={chartData}>
-            <XAxis dataKey="date" tickLine={false} />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              tickFormatter={(date) =>
+                new Date(date).toLocaleDateString("fr-FR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                })
+              }
+            />
             <YAxis type="number" tickLine={false} allowDecimals={false} />
             <Bar dataKey="completed" fill="#34D399" />
           </BarChart>

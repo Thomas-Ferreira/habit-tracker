@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import habitRoutes from './routes/habit';
 import habitLogRoutes from './routes/habitLog'
 import stats from "./routes/stats"
+import ollamaRoutes from "./routes/ollama"
 
 
 dotenv.config()
@@ -26,6 +27,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/habit", habitRoutes)
 app.use("/api/habit-log", habitLogRoutes)
 app.use("/api/analytics", stats)
+app.use("/api/ollama", ollamaRoutes)
 
 // Test route
 app.get("/api/health", (req: Request, res: Response) => {

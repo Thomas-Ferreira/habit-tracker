@@ -5,7 +5,6 @@ export interface OllamaGenerateResponse {
 export async function getOllamaResponse(prompt: string): Promise<string> {
   const OLLAMA_URL = process.env.OLLAMA_URL;
   const OLLAMA_MODEL = process.env.OLLAMA_MODEL;
-  console.log(process.env.OLLAMA_URL);
 
   try {
     const res = await fetch(`${OLLAMA_URL}/api/generate`, {

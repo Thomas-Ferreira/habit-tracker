@@ -1,7 +1,7 @@
 import type { Habit, HabitLog } from "../types";
 import { HabitCard } from "./HabitCard";
 import { useAuth } from "../hooks/useAuth";
-import { Loading } from "../common/loading";
+import { HabitListSkeleton } from "./skeletons";
 import { useQuery } from "@tanstack/react-query";
 import { fetchHabits } from "../api/habit";
 import { useHabitLogs } from "../hooks/useHabitLogs";
@@ -41,7 +41,7 @@ export const HabitList = () => {
     ? Math.round((completedHabits / habits.length) * 100)
     : 0;
 
-  if (isLoadingHabits || isLoadingLogs) return <Loading />;
+  if (isLoadingHabits || isLoadingLogs) return <HabitListSkeleton />;
 
   if (isHabitsError)
     return (

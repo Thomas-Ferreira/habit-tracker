@@ -6,7 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import type { AnalyticsStats } from "../types";
 import { fetchAnalytics } from "../api/analytics";
-import { Loading } from "../common/loading";
+import { DashboardSkeleton } from "../components/skeletons";
 import { CompletionRing } from "../components/analytics/CompletionRing";
 import { useHabitLogs } from "../hooks/useHabitLogs";
 
@@ -41,7 +41,7 @@ export const DashboardPage = () => {
     error: logsError,
   } = useHabitLogs(token!, formattedStartDate, formattedEndDate);
 
-  if (isLoading || isLoadingLogs) return <Loading />;
+  if (isLoading || isLoadingLogs) return <DashboardSkeleton />;
   if (isError)
     return <div>Erreur lors du chargement des stats : {error.message}</div>;
   if (isLogsError)

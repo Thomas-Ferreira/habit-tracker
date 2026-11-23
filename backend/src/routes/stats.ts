@@ -3,7 +3,8 @@ import { authenticateToken, AuthRequest } from "../middleware/auth";
 import mongoose from "mongoose";
 import HabitLog, { IHabitLog } from "../models/HabitLog";
 import Habit, { IHabit } from "../models/Habit";
-import { calculateCompletionRate, calculateOverallStats, calculateStreak, countCompletedHabitPeriods, parseQueryDate } from "../utils";
+import { parseQueryDate } from "../utils/date";
+import { calculateCompletionRate, calculateOverallStats, calculateStreak, countCompletedHabitPeriods } from "../utils/habitStats";
 import { HabitStat, AnalyticsStats } from "../models/Stat";
 
 const router: Router = express.Router();

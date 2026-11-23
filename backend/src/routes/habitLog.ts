@@ -3,7 +3,7 @@ import { authenticateToken, AuthRequest } from "../middleware/auth";
 import HabitLog, { CreateHabitLogRequest } from "../models/HabitLog";
 import mongoose from "mongoose";
 import Habit from "../models/Habit";
-import { parseQueryDate } from "../utils";
+import { parseQueryDate } from "../utils/date";
 
 type HabitLogRequest = AuthRequest<{}, {}, CreateHabitLogRequest>;
 

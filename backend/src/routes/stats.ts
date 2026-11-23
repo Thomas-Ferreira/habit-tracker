@@ -3,8 +3,8 @@ import { authenticateToken, AuthRequest } from "../middleware/auth";
 import mongoose from "mongoose";
 import HabitLog, { IHabitLog } from "../models/HabitLog";
 import Habit, { IHabit } from "../models/Habit";
-import { calculateCompletionRate, calculateStreak, countCompletedHabitPeriods, parseQueryDate } from "../utils";
-import { HabitStat, BaseStat, AnalyticsStats } from "../models/Stat";
+import { calculateCompletionRate, calculateOverallStats, calculateStreak, countCompletedHabitPeriods, parseQueryDate } from "../utils";
+import { HabitStat, AnalyticsStats } from "../models/Stat";
 
 const router: Router = express.Router();
 
@@ -74,16 +74,14 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       })
     }
 
-    const averageStreak: number = habits.length === 0
-      ? 0
-      : Math.round(habitStats.reduce((sum, habit) => sum + habit.streak, 0) / habitStats.length);
-
     //OVERALLSTATS
-    const overallStats: BaseStat = {
-      completed: countCompletedHabitPeriods(habitLogs, start, end, habits),
-      completionRate: calculateCompletionRate(habitLogs, start, end, habits),
-      streak: averageStreak
-    }
+    const overallStats = calculateOverallStats(
+      habitLogs,
+      start,
+      end,
+      habits,
+      habitStats.map((habit) => habit.streak)
+    );
 
     const result: AnalyticsStats = {
       overallStats,

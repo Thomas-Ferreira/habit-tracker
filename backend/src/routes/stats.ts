@@ -3,7 +3,7 @@ import { authenticateToken, AuthRequest } from "../middleware/auth";
 import mongoose from "mongoose";
 import HabitLog, { IHabitLog } from "../models/HabitLog";
 import Habit, { IHabit } from "../models/Habit";
-import { parseQueryDate } from "../utils/date";
+import { getDateRange } from "../utils/dateRange";
 import { calculateCompletionRate, calculateOverallStats, calculateStreak, countCompletedHabitPeriods } from "../utils/habitStats";
 import { HabitStat, AnalyticsStats } from "../models/Stat";
 
@@ -27,32 +27,18 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     const startDate = rawStartDate as string | undefined;
     const endDate = rawEndDate as string | undefined;
 
-    const today = new Date();
-    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const parsedStartDate = startDate ? parseQueryDate(startDate) : null;
-    const parsedEndDate = endDate ? parseQueryDate(endDate) : null;
-
-    if ((startDate !== undefined && !parsedStartDate) || (endDate !== undefined && !parsedEndDate)) {
+    const dateRange = getDateRange(startDate, endDate);
+    if ("error" in dateRange && dateRange.error === "invalid-date") {
       return res.status(400).json({ error: 'startDate and endDate must be valid dates' });
     }
-
-    const start = parsedStartDate ?? new Date(parsedEndDate ?? todayDate);
-    const end = parsedEndDate ?? new Date(todayDate);
-    if (!parsedStartDate) start.setDate(start.getDate() - 6);
-
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
-    if (start > end) {
+    if ("error" in dateRange) {
       return res.status(400).json({ error: 'startDate must be before or equal to endDate' });
     }
-
-    const startOfDay = start;
-    const startOfDayAfterEnd = new Date(end);
-    startOfDayAfterEnd.setDate(startOfDayAfterEnd.getDate() + 1);
+    const { start, end, endExclusive } = dateRange;
 
     const filter: Record<string, unknown> = {
       userId,
-      date: { $gte: startOfDay, $lt: startOfDayAfterEnd },
+      date: { $gte: start, $lt: endExclusive },
     };
     const habitLogs = await HabitLog.find(filter as any)
     const habits = await Habit.find({ userId } as any)
@@ -116,33 +102,19 @@ router.get("/:habitId", authenticateToken, async (req: AuthRequest, res: Respons
     const startDate = rawStartDate as string | undefined;
     const endDate = rawEndDate as string | undefined;
 
-    const today = new Date();
-    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const parsedStartDate = startDate ? parseQueryDate(startDate) : null;
-    const parsedEndDate = endDate ? parseQueryDate(endDate) : null;
-
-    if ((startDate !== undefined && !parsedStartDate) || (endDate !== undefined && !parsedEndDate)) {
+    const dateRange = getDateRange(startDate, endDate);
+    if ("error" in dateRange && dateRange.error === "invalid-date") {
       return res.status(400).json({ error: 'startDate and endDate must be valid dates' });
     }
-
-    const start = parsedStartDate ?? new Date(parsedEndDate ?? todayDate);
-    const end = parsedEndDate ?? new Date(todayDate);
-    if (!parsedStartDate) start.setDate(start.getDate() - 6);
-
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
-    if (start > end) {
+    if ("error" in dateRange) {
       return res.status(400).json({ error: 'startDate must be before or equal to endDate' });
     }
-
-    const startOfDay = start;
-    const startOfDayAfterEnd = new Date(end);
-    startOfDayAfterEnd.setDate(startOfDayAfterEnd.getDate() + 1);
+    const { start, end, endExclusive } = dateRange;
 
     const filter: Record<string, unknown> = {
       userId,
       habitId,
-      date: { $gte: startOfDay, $lt: startOfDayAfterEnd },
+      date: { $gte: start, $lt: endExclusive },
     };
     const habitLogs = await HabitLog.find(filter as any)
     const habit = await Habit.findById(habitId)

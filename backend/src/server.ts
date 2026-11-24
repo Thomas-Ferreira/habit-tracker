@@ -1,44 +1,44 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import authRoutes from './routes/auth';
-import habitRoutes from './routes/habit';
-import habitLogRoutes from './routes/habitLog'
-import stats from "./routes/stats"
-import ollamaRoutes from "./routes/ollama"
+import express, { Express, Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import authRoutes from "./routes/auth";
+import habitRoutes from "./routes/habit";
+import habitLogRoutes from "./routes/habitLog";
+import stats from "./routes/stats";
+import ollamaRoutes from "./routes/ollama";
 
-
-dotenv.config()
+dotenv.config();
 
 const app: Express = express();
 
 // Middleware
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || "")
+mongoose
+  .connect(process.env.MONGODB_URI || "")
   .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error('❌ MongoDB error:', err))
+  .catch((err) => console.error("❌ MongoDB error:", err));
 
 // Routes
-app.use("/api/auth", authRoutes)
-app.use("/api/habit", habitRoutes)
-app.use("/api/habit-log", habitLogRoutes)
-app.use("/api/analytics", stats)
-app.use("/api/ollama", ollamaRoutes)
+app.use("/api/auth", authRoutes);
+app.use("/api/habit", habitRoutes);
+app.use("/api/habit-log", habitLogRoutes);
+app.use("/api/analytics", stats);
+app.use("/api/analyze/ollama", ollamaRoutes);
 
 // Test route
 app.get("/api/health", (req: Request, res: Response) => {
-  res.json({ status: "Server is running ✅" })
-})
+  res.json({ status: "Server is running ✅" });
+});
 
 // Error handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack)
-  res.status(500).json({ error: 'Something went wrong' });
-})
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong" });
+});
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`))
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

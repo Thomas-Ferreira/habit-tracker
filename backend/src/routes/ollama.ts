@@ -26,6 +26,11 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
         date: { $gte: start, $lt: endExclusive },
       } as any),
     ]);
+
+    if (habits.length === 0) {
+      return res.status(400).json({ error: "No habits found" });
+    }
+
     const streaks = habits.map((habit) =>
       calculateStreak(
         logs.filter((log) => log.habitId.toString() === habit._id.toString()),

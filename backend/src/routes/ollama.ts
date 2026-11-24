@@ -9,7 +9,7 @@ import { getDateRange } from "../utils/dateRange";
 
 const router: Router = express.Router();
 
-router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(400).json({ error: "login required" });
 

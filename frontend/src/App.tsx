@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/PrivateRoute'
 import { Loading } from './common/loading'
 import { DashboardPage } from './pages/DashboardPage'
 import { ErrorPage } from './pages/ErrorPage'
+import { CoachPage } from './pages/CoachPage'
 import { Layout } from './components/layout'
 
 function App() {
@@ -28,6 +29,13 @@ function App() {
         <ProtectedRoute token={token}>
           <Layout>
             <DashboardPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/coach" element={
+        <ProtectedRoute token={token}>
+          <Layout>
+            <CoachPage />
           </Layout>
         </ProtectedRoute>
       } />

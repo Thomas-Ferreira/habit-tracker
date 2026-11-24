@@ -30,6 +30,9 @@ export const Navbar = () => {
             <NavLink to="/dashboard" className={linkClassName}>
               Dashboard
             </NavLink>
+            <NavLink to="/coach" className={linkClassName}>
+              Coach
+            </NavLink>
           </nav>
 
           <div className="flex items-center gap-3">

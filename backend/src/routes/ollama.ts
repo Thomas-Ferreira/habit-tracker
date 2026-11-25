@@ -61,10 +61,14 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       habits,
       streaks,
     );
-    const contextualPrompt = buildCoachPrompt({
-      overallStats: overallStats,
-      habits: habitStats,
-    });
+    const contextualPrompt = buildCoachPrompt(
+      {
+        overallStats: overallStats,
+        habits: habitStats,
+      },
+      start,
+      end,
+    );
 
     const response = await getOllamaResponse(contextualPrompt, selectedModel);
     return res.json({ response });

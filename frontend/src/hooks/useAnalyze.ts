@@ -1,9 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 import { analyzeHabits } from "../api/coach";
 
+export type AnalyzeVariables = {
+  token: string;
+  model: string;
+};
+
 export function useAnalyze() {
-  return useMutation<string, Error, string>({
+  return useMutation<string, Error, AnalyzeVariables>({
     mutationKey: ["analyze-habits"],
-    mutationFn: (token) => analyzeHabits(token),
+    mutationFn: ({ token, model }) => analyzeHabits(token, model),
   });
 }

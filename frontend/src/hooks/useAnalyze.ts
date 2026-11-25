@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { Analyze } from "../api/coach";
+import { analyzeHabits } from "../api/coach";
 
-export function useAnalyze(token: string | null) {
-  return useMutation({
-    mutationKey: ["analyze", token],
-    mutationFn: () => Analyze(token!),
+export function useAnalyze() {
+  return useMutation<string, Error, string>({
+    mutationKey: ["analyze-habits"],
+    mutationFn: (token) => analyzeHabits(token),
   });
 }

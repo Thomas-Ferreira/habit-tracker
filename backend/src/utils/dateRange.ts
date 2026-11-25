@@ -4,13 +4,16 @@ type DateRangeResult =
   | { start: Date; end: Date; endExclusive: Date }
   | { error: "invalid-date" | "start-after-end" };
 
-export function getDateRange(startDate?: string, endDate?: string): DateRangeResult {
+export function getDateRange(startDate?: unknown, endDate?: unknown): DateRangeResult {
   const today = new Date();
   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const parsedStartDate = startDate ? parseQueryDate(startDate) : null;
-  const parsedEndDate = endDate ? parseQueryDate(endDate) : null;
+  const parsedStartDate = typeof startDate === "string" ? parseQueryDate(startDate) : null;
+  const parsedEndDate = typeof endDate === "string" ? parseQueryDate(endDate) : null;
 
-  if ((startDate !== undefined && !parsedStartDate) || (endDate !== undefined && !parsedEndDate)) {
+  if (
+    (startDate !== undefined && (typeof startDate !== "string" || !parsedStartDate)) ||
+    (endDate !== undefined && (typeof endDate !== "string" || !parsedEndDate))
+  ) {
     return { error: "invalid-date" };
   }
 

@@ -2,15 +2,18 @@ export interface OllamaGenerateResponse {
   response: string;
 }
 
-export async function getOllamaResponse(prompt: string): Promise<string> {
+export async function getOllamaResponse(
+  prompt: string,
+  model: string,
+): Promise<string> {
   const OLLAMA_URL = process.env.OLLAMA_URL;
-  const OLLAMA_MODEL = process.env.OLLAMA_MODEL;
+  //const OLLAMA_MODEL = process.env.OLLAMA_MODEL;
 
   try {
     const res = await fetch(`${OLLAMA_URL}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: OLLAMA_MODEL, prompt, stream: false }),
+      body: JSON.stringify({ model: model, prompt, stream: false }),
     });
 
     if (!res.ok) {

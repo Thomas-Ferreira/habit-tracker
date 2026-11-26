@@ -14,7 +14,7 @@ import { buildCoachPrompt } from "../utils/buildCoachPrompt";
 
 const router: Router = express.Router();
 
-router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(400).json({ error: "login required" });
 
